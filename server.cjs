@@ -370,9 +370,9 @@ app.get('/api/test', (req, res) => {
 // It sends 'index.html' for any request that doesn't match previous routes,
 // which is common for Single Page Applications (SPAs).
 // ==========================
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
-});
+// app.get("*", (req, res) => {
+//     res.sendFile(path.join(__dirname, "public", "index.html"));
+// });
 
 // --- Global Error Handling Middleware ---
 app.use((err, req, res, next) => {
