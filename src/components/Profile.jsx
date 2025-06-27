@@ -41,7 +41,7 @@ const Profile = ({ currentUser, setCurrentUser, API_BASE_URL, showGlobalMessage 
 
         // 🔥 Send image URL to backend to store in DB
         try {
-          const res = await fetch(`${API_BASE_URL}/user/update-avatar`, {
+          const res = await fetch(`${API_BASE_URL}/api/user/update-avatar`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id: currentUser.id, profileUrl: base64Image }),
@@ -69,7 +69,7 @@ const Profile = ({ currentUser, setCurrentUser, API_BASE_URL, showGlobalMessage 
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/user/update-email`, {
+      const res = await fetch(`${API_BASE_URL}/api/user/update-email`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: currentUser.id, newEmail }),
@@ -105,7 +105,7 @@ const Profile = ({ currentUser, setCurrentUser, API_BASE_URL, showGlobalMessage 
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/user/update-username`, {
+      const res = await fetch(`${API_BASE_URL}/api/user/update-username`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: currentUser.id, newUsername }),
@@ -139,7 +139,7 @@ const Profile = ({ currentUser, setCurrentUser, API_BASE_URL, showGlobalMessage 
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/user/update-password`, {
+      const res = await fetch(`${API_BASE_URL}/api/user/update-password`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: currentUser.id, oldPassword, newPassword }),
@@ -191,7 +191,7 @@ const Profile = ({ currentUser, setCurrentUser, API_BASE_URL, showGlobalMessage 
                 localStorage.setItem(`avatar_${currentUser.id}`, url);
 
                 try {
-                  const res = await fetch(`${API_BASE_URL}/user/update-avatar`, {
+                  const res = await fetch(`${API_BASE_URL}/api/user/update-avatar`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ id: currentUser.id, profileUrl: url }),

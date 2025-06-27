@@ -19,7 +19,7 @@ const Cart = ({ API_BASE_URL, currentUser, showGlobalMessage, updateNavCartCount
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/cart?user_id=${currentUser.id}`);
+      const res = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`);
       const data = await res.json();
       if (res.ok && data.cartItems) {
         setCartItems(data.cartItems);
@@ -50,7 +50,7 @@ const Cart = ({ API_BASE_URL, currentUser, showGlobalMessage, updateNavCartCount
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/cart/update/${cartItemId}`, {
+      const res = await fetch(`${API_BASE_URL}/api/cart/update/${cartItemId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quantity: newQuantity, user_id: currentUser.id })
@@ -72,7 +72,7 @@ const Cart = ({ API_BASE_URL, currentUser, showGlobalMessage, updateNavCartCount
     if (!window.confirm("Remove this item?")) return;
 
     try {
-      const res = await fetch(`${API_BASE_URL}/cart/remove/${cartItemId}?user_id=${currentUser.id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/cart/remove/${cartItemId}?user_id=${currentUser.id}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" }
       });

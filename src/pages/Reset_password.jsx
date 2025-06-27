@@ -35,7 +35,7 @@ const Reset_password = ({ API_BASE_URL, showGlobalMessage }) => {
 
     try {
       setSubmitting(true);
-      const res = await fetch(`${API_BASE_URL}/reset-password`, {
+      const res = await fetch(`${API_BASE_URL}/api/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, newPassword }),

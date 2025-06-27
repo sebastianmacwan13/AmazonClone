@@ -18,7 +18,7 @@ const ProductDetail = ({ API_BASE_URL, currentUser, showGlobalMessage, updateNav
 
       if (!selectedProduct || String(selectedProduct.id) !== String(id)) {
         try {
-          const response = await fetch(`${API_BASE_URL}/products/${id}`);
+          const response = await fetch(`${API_BASE_URL}/api/products/${id}`);
           const data = await response.json();
 
           if (response.ok && data.product) {
@@ -74,7 +74,7 @@ const ProductDetail = ({ API_BASE_URL, currentUser, showGlobalMessage, updateNav
     };
 
     try {
-      const res = await fetch(`${API_BASE_URL}/cart/add`, {
+      const res = await fetch(`${API_BASE_URL}/api/cart/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cartItem),

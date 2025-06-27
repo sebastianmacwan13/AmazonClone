@@ -15,7 +15,7 @@ const Forgot_password = ({ API_BASE_URL, showGlobalMessage }) => {
 
     try {
       setSubmitting(true);
-      const res = await fetch(`${API_BASE_URL}/forgot-password`, {
+      const res = await fetch(`${API_BASE_URL}/api/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

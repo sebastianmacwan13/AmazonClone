@@ -79,7 +79,7 @@ const Home = ({ API_BASE_URL, currentUser, showGlobalMessage, updateNavCartCount
         };
 
         try {
-            const response = await fetch(`${API_BASE_URL}/cart/add`, {
+            const response = await fetch(`${API_BASE_URL}/api/cart/add`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(cartItemPayload)
