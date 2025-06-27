@@ -17,7 +17,7 @@ import Reset_password from './pages/Reset_password.jsx';
 import Contactform from './pages/Contact';
 
 // const API_BASE_URL = "https://amazon-clone-fullstack.onrender.com";
-const API_BASE_URL = "http://localhost:5000/api"; // ✅ MUST match your Express backend
+const API_BASE_URL = "https://amazon-clone-reactversion.onrender.com"; // ✅ MUST match your Express backend
 
 
 const App = () => {
