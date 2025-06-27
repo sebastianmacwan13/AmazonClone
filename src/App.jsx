@@ -57,7 +57,7 @@ const App = () => {
     const updateNavCartCount = async () => {
         if (currentUser?.id) {
             try {
-                const res = await fetch(`${API_BASE_URL}/cart?user_id=${currentUser.id}`);
+                const res = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`);
                 const contentType = res.headers.get("content-type");
 
                 // Protect against receiving HTML

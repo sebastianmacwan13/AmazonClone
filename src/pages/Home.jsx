@@ -18,7 +18,7 @@ const Home = ({ API_BASE_URL, currentUser, showGlobalMessage, updateNavCartCount
         try {
             // Using a relative path for API_BASE_URL, ensure it's correctly configured
             // If your API_BASE_URL includes a domain, use it: await fetch(`${API_BASE_URL}/api/products`);
-            const response = await fetch('/api/products');
+            const response = await fetch(`${API_BASE_URL}/api/products`);
             const data = await response.json();
 
             if (response.ok && data.products) {
