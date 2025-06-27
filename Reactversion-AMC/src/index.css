@@ -1,0 +1,115 @@
+@import "tailwindcss";
+#suggestionList {
+    position: absolute;
+    z-index: 1000;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* @import "tailwindcss"; */
+
+/* ✅ Updated for dark mode using html.dark */
+html.dark body {
+    background-color: #121212 !important;
+    color: #f8f9fa !important;
+}
+
+html.dark .navbar {
+    background-color: #0d6efd !important;
+}
+
+html.dark .nav-link,
+html.dark .navbar-brand {
+    color: #f8f9fa !important;
+}
+
+html.dark .btn-outline-light {
+    color: #f8f9fa !important;
+    border-color: #f8f9fa !important;
+}
+
+html.dark .btn-outline-light:hover {
+    background-color: #f8f9fa !important;
+    color: #212529 !important;
+}
+
+html.dark .form-control,
+html.dark .list-group-item {
+    background-color: #020a12cc;
+    color: #f8f9fa;
+    border-color: #6c757d;
+}
+
+html.dark .list-group-item:hover {
+    background-color: #495057;
+}
+
+html.dark .card {
+    background-color: #1e1e1e;
+    color: #f8f9fa;
+    border: 1px solid #333;
+}
+
+html.dark .footer {
+    background-color: #1a1a1a;
+}
+
+/* Gradient background for nav */
+nav {
+    margin: 0;
+    background-color: #f0f0f0;
+    background-image: linear-gradient(to right, #cb115f, #0b8db1, #1117cb);
+    background-size: 200% auto;
+    animation: moveGradient 5s ease-in-out infinite;
+}
+
+footer {
+    margin: 0;
+    background-color: #f0f0f0;
+    background-image: linear-gradient(to right, #cb115f, #0b8db1, #1117cb);
+    background-size: 200% auto;
+    animation: moveGradient 5s ease-in-out infinite;
+}
+
+@keyframes moveGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Other UI styles */
+#usr:hover {
+    text-decoration-color: black;
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 10px;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #0d6efd;
+}
+
+.avatar-upload {
+    text-align: center;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
