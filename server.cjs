@@ -25,7 +25,7 @@ const app = express();
 // Enable CORS for all routes. It's crucial to place this early.
 // app.use(cors());
 app.use(cors({
-  origin: 'https://sweet-cranachan-e298a3.netlify.app/',
+  origin: 'https://sweet-cranachan-e298a3.netlify.app',
   credentials: true
 }));
 
