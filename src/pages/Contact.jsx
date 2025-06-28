@@ -18,7 +18,7 @@ const Contactform = () => {
   //   }
   // }, []);
   useEffect(() => {
-  const storedUser = localStorage.getItem("user");
+  const storedUser = localStorage.getItem("currentUser");
 
   // Delay check to allow localStorage to sync
   setTimeout(() => {
