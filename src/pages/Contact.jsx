@@ -69,6 +69,7 @@ const Contactform = () => {
                         </>
           )
         });
+        navigate("/")
 
         formRef.current.reset();
       } else {
