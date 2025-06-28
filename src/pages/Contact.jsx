@@ -1,10 +1,22 @@
-import React, { useState, useRef } from 'react';
-
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Contactform = () => {
-   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState(null);
   const [status, setStatus] = useState({ type: '', message: '' });
   const formRef = useRef(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      navigate("/login"); // 🔒 Redirect to login if not authenticated
+    } else {
+      setUser(JSON.parse(storedUser)); // Set user info to state
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,15 +39,7 @@ const Contactform = () => {
           message: (
             <>
               ✅ Message sent successfully!
-              <a
-                href={`${API_BASE_URL}/view_submission?id=${submissionId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-2 underline"
-              >
-                View/Edit Submission
-              </a>
-            </>
+                        </>
           )
         });
 
@@ -45,13 +49,13 @@ const Contactform = () => {
         setStatus({ type: 'error', message: `❌ Failed: ${errorText}` });
       }
     } catch (err) {
-       console.error("Form submission error:", err);
+      console.error("Form submission error:", err);
       setStatus({ type: 'error', message: '❌ Network error. Please try again.' });
     }
   };
 
   return (
-    <div className="h-screen w-full bg-gradient-to-r  flex items-center justify-center">
+    <div className="h-screen w-full bg-gradient-to-r flex items-center justify-center">
       <div className="flex flex-col items-center space-y-6">
         <h1 className="text-4xl font-bold text-shadow-gray-700">Contact Us</h1>
 
@@ -68,7 +72,9 @@ const Contactform = () => {
             id="name"
             required
             placeholder="Your Name"
+            defaultValue={user?.username || ""}
             className="w-full p-2 mb-4 border border-gray-300 rounded dark:text-black"
+            
           />
 
           <label htmlFor="email" className="block mb-2 font-bold text-gray-700">Email:</label>
@@ -78,7 +84,9 @@ const Contactform = () => {
             id="email"
             required
             placeholder="Your Email"
+            defaultValue={user?.email || ""}
             className="w-full p-2 mb-4 border border-gray-300 rounded dark:text-black"
+            
           />
 
           <label htmlFor="subject" className="block mb-2 font-bold text-gray-700">Subject:</label>
@@ -100,7 +108,7 @@ const Contactform = () => {
             className="w-full p-2 mb-4 border border-gray-300 rounded h-24 dark:text-black"
           ></textarea>
 
-          <label htmlFor="attachment" className=" font-bold text-gray-700 border-2">
+          <label htmlFor="attachment" className="font-bold text-gray-700 border-2">
             Attachment (optional):
           </label>
           <input
@@ -131,9 +139,7 @@ const Contactform = () => {
         </form>
       </div>
     </div>
-
   );
 };
 
 export default Contactform;
-

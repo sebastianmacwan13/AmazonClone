@@ -16,9 +16,9 @@ import ForgotPassword from './pages/Forgot-password.jsx';
 import Reset_password from './pages/Reset_password.jsx';
 import Contactform from './pages/Contact';
 
-// const API_BASE_URL = "https://amazon-clone-fullstack.onrender.com";
+const API_BASE_URL = "https://amazon-clone-fullstack.onrender.com";
 // const API_BASE_URL = "https://amazon-clone-reactversion.onrender.com"; // ✅ MUST match your Express backend
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
 const App = () => {
