@@ -92,7 +92,7 @@ const App = () => {
     };
 
     return (
-        <div> {/* No <Router> here; it should be in index.js */}
+        <div className='sm:'> {/* No <Router> here; it should be in index.js */}
             <Navbar
                 currentUser={currentUser}
                 cartCount={cartCount}

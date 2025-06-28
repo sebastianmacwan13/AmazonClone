@@ -143,7 +143,7 @@ const Navbar = ({ currentUser, cartCount, handleLogout }) => {
               <NavLink
                 to="/cart"
                 className={({ isActive }) =>
-                  `block px-4 py-2 border border-white text-white rounded-md hover:bg-white hover:text-blue-600 transition relative 
+                  `inline-block px-4 py-2 border border-white  sm:text-base text-white rounded-md hover:bg-white hover:text-blue-600 transition relative 
                   ${isActive ? 'font-semibold text-blue-300' : ''}`
                 }
                 onClick={() => setIsMenuOpen(false)}
