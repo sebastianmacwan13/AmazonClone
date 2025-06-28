@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 
 
 const Contactform = () => {
+   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [status, setStatus] = useState({ type: '', message: '' });
   const formRef = useRef(null);
 
