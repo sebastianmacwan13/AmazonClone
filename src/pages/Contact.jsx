@@ -68,8 +68,10 @@ const Contactform = () => {
               ✅ Message sent successfully!
                         </>
           )
-        });
-        navigate("/")
+        });setTimeout(() => {
+          
+          navigate("/")
+        }, 1000);
 
         formRef.current.reset();
       } else {
