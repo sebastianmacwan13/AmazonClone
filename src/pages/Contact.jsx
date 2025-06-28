@@ -9,14 +9,41 @@ const Contactform = () => {
   const [status, setStatus] = useState({ type: '', message: '' });
   const formRef = useRef(null);
 
+  // useEffect(() => {
+  //   const storedUser = localStorage.getItem("user");
+  //   if (!storedUser) {
+  //     navigate("/login"); // 🔒 Redirect to login if not authenticated
+  //   } else {
+  //     setUser(JSON.parse(storedUser)); // Set user info to state
+  //   }
+  // }, []);
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+  const storedUser = localStorage.getItem("user");
+
+  // Delay check to allow localStorage to sync
+  setTimeout(() => {
     if (!storedUser) {
-      navigate("/login"); // 🔒 Redirect to login if not authenticated
+      alert("❌ You must be logged in to access the contact form.");
+      navigate("/login");
     } else {
-      setUser(JSON.parse(storedUser)); // Set user info to state
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        if (!parsedUser?.username || !parsedUser?.email) {
+          alert("⚠️ Incomplete user info. Please log in again.");
+          localStorage.removeItem("user");
+          navigate("/login");
+        } else {
+          setUser(parsedUser);
+        }
+      } catch (err) {
+        console.error("JSON parse error:", err);
+        localStorage.removeItem("user");
+        navigate("/login");
+      }
     }
-  }, []);
+  }, 200); // Add small delay to ensure localStorage is synced
+}, []);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
