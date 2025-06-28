@@ -328,7 +328,7 @@ app.put("/api/user/update-password", async (req, res) => {
 });
 
 // Contact Form Route
-app.post("/api/send_mail", upload.single("file"), async (req, res) => {
+app.post("/api/send_mail", upload.single("attachment"), async (req, res) => {
     const { name, email, subject, message } = req.body;
     const file = req.file;
 

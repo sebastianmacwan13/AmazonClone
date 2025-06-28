@@ -44,6 +44,7 @@ const Contactform = () => {
         setStatus({ type: 'error', message: `❌ Failed: ${errorText}` });
       }
     } catch (err) {
+       console.error("Form submission error:", err);
       setStatus({ type: 'error', message: '❌ Network error. Please try again.' });
     }
   };
