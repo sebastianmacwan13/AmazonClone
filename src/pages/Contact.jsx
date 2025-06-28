@@ -12,7 +12,7 @@ const Contactform = () => {
     const formData = new FormData(formRef.current);
 
     try {
-      const response = await fetch('http://localhost:5000/api/send_mail', {
+      const response = await fetch(`${API_BASE_URL}/api/send_mail`, {
         method: 'POST',
         body: formData,
       });
@@ -27,7 +27,7 @@ const Contactform = () => {
             <>
               ✅ Message sent successfully!
               <a
-                href={`http://localhost:5000/view_submission?id=${submissionId}`}
+                href={`${API_BASE_URL}/view_submission?id=${submissionId}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ml-2 underline"
