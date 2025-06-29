@@ -25,7 +25,7 @@ const app = express();
 // Enable CORS for all routes. It's crucial to place this early.
 // app.use(cors());
 app.use(cors({
-  origin: 'https://amazon-clone-react-version.netlify.app',
+  origin: 'https://amazon-clone-reactversion-1.onrender.com',
   credentials: true
 }));
 
