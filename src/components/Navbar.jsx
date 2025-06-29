@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useNavigate,NavLink } from 'react-router-dom';
 import mode from '../functions.js';
 
 const Navbar = ({ currentUser, cartCount, handleLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const navigate = useNavigate();
 
   return (
     <nav className="bg-green-600 shadow-md">
@@ -102,7 +103,9 @@ const Navbar = ({ currentUser, cartCount, handleLogout }) => {
                     onClick={() => {
                       handleLogout();
                       setIsMenuOpen(false);
-                    }}
+                      navigate("/");
+                    }
+                  }
                     className="block px-4 py-2 text-white border border-white rounded-md hover:bg-white hover:text-blue-600 transition"
                   >
                     Logout
