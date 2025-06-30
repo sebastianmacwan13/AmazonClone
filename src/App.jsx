@@ -22,7 +22,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
 const App = () => {
-    mode();
+   
     // Initialize currentUser from localStorage
     const [currentUser, setCurrentUser] = useState(() => {
         try {
@@ -37,6 +37,9 @@ const App = () => {
     const [message, setMessage] = useState({ text: "", type: "" });
     const [cartCount, setCartCount] = useState(0);
 
+    useEffect(() => {
+  mode(); // ✅ Apply theme on first render
+}, []);
     // Effect to set up message display and auto-hide
     useEffect(() => {
         if (message.text) {
@@ -92,7 +95,7 @@ const App = () => {
     };
 
     return (
-        <div className='sm:'> {/* No <Router> here; it should be in index.js */}
+        <div> {/* No <Router> here; it should be in index.js */}
             <Navbar
                 currentUser={currentUser}
                 cartCount={cartCount}
