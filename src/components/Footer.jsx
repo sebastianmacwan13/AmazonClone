@@ -78,9 +78,9 @@ const Footer = () => {
         {/* Adjusted positioning, size, and object-fit for the image */}
         <div className="absolute bottom-4 right-4"> {/* Positioned absolutely to bottom right, with some padding */}
           <img
-            src="src\assets\SM.png"
+            src="public/SM.png"
             alt="Sebastian Macwan Logo"
-            className="h-10 w-auto object-contain  opacity-15  hover:opacity-40" // Set a fixed height, auto width, and object-contain to fit without distortion
+            className="h-16 w-auto object-contain  opacity-15  hover:opacity-40" // Set a fixed height, auto width, and object-contain to fit without distortion
           />
         </div>
       </div>
