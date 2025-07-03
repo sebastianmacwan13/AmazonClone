@@ -35,7 +35,7 @@ const App = () => {
     const [message, setMessage] = useState({ text: "", type: "" });
     const [cartCount, setCartCount] = useState(0);
 
-    useEffect(() => {
+      useEffect(() => {
         if (message.text) {
             const timer = setTimeout(() => {
                 setMessage({ text: "", type: "" });

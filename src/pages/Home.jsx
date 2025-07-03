@@ -201,7 +201,7 @@ const Home = ({ API_BASE_URL, currentUser, showGlobalMessage, updateNavCartCount
                 )}
 
                 {!loading && !noProducts && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 py-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 py-3">
                         {products.map((product) => (
                             <div key={product.id} className="w-full">
                                 <div className="bg-white rounded-lg shadow h-full flex flex-col overflow-hidden border border-gray-200  transform transition-transform duration-300 ease-out
