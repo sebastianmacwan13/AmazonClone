@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate,NavLink } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 import mode from '../functions.js';
 
 const Navbar = ({ currentUser, cartCount, handleLogout }) => {
@@ -18,7 +18,7 @@ const Navbar = ({ currentUser, cartCount, handleLogout }) => {
         {/* Username */}
         {currentUser?.username && (
           <span className=" text-white font-semibold text-lg uppercase ml-4">
-           Hello, {currentUser.username}
+            Hello, {currentUser.username}
           </span>
         )}
 
@@ -105,7 +105,7 @@ const Navbar = ({ currentUser, cartCount, handleLogout }) => {
                       setIsMenuOpen(false);
                       navigate("/");
                     }
-                  }
+                    }
                     className="block px-4 py-2 text-white border border-white rounded-md hover:bg-white hover:text-blue-600 transition"
                   >
                     Logout

@@ -8,9 +8,9 @@ import About from './pages/About';
 import Footer from './components/Footer';
 import Profile from './components/Profile';
 import Cart from './pages/Cart';
-// import './index.css';
+import './index.css';
 import ProductDetail from './pages/ProductDetails';
-import mode from './functions.js';
+// import mode from './functions.js';
 import Logins from './components/Logins.jsx';
 import ForgotPassword from './pages/Forgot-password.jsx';
 import Reset_password from './pages/Reset_password.jsx';
@@ -22,7 +22,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 
 const App = () => {
-   
+
     // Initialize currentUser from localStorage
     const [currentUser, setCurrentUser] = useState(() => {
         try {
@@ -37,9 +37,9 @@ const App = () => {
     const [message, setMessage] = useState({ text: "", type: "" });
     const [cartCount, setCartCount] = useState(0);
 
-    useEffect(() => {
-  mode(); // ✅ Apply theme on first render
-}, []);
+    // useEffect(() => {
+    //     mode(); // ✅ Apply theme on first render
+    // }, []);
     // Effect to set up message display and auto-hide
     useEffect(() => {
         if (message.text) {
@@ -48,7 +48,7 @@ const App = () => {
             }, 3000); // Message disappears after 3 seconds
             return () => clearTimeout(timer);
         }
-        
+
     }, [message]);
 
     // Function to show a global message
@@ -100,8 +100,8 @@ const App = () => {
                 currentUser={currentUser}
                 cartCount={cartCount}
                 handleLogout={handleLogout}
-                // handleThemeToggle={handleThemeToggle}
-               
+            // handleThemeToggle={handleThemeToggle}
+
             />
             {message.text && (
                 <div id="globalMessageBox" className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50
@@ -189,25 +189,25 @@ const App = () => {
                 )}
                 <Route
                     path="/forgot-password"
-                    element={<ForgotPassword 
+                    element={<ForgotPassword
                         API_BASE_URL={API_BASE_URL}
-                                currentUser={currentUser}
-                                showGlobalMessage={showGlobalMessage}
-                                setCurrentUser={setCurrentUser}
-                             />
+                        currentUser={currentUser}
+                        showGlobalMessage={showGlobalMessage}
+                        setCurrentUser={setCurrentUser}
+                    />
                     }
                 />
-                
+
                 {/* Redirect for unknown routes */}
                 <Route path="*" element={<Home API_BASE_URL={API_BASE_URL} currentUser={currentUser} showGlobalMessage={showGlobalMessage} updateNavCartCount={updateNavCartCount} />} />
-           <Route
+                <Route
                     path="/reset_password"
-                    element={<Reset_password 
-                    API_BASE_URL={API_BASE_URL}
-                                currentUser={currentUser}
-                                showGlobalMessage={showGlobalMessage}
-                                setCurrentUser={setCurrentUser}
-                            />
+                    element={<Reset_password
+                        API_BASE_URL={API_BASE_URL}
+                        currentUser={currentUser}
+                        showGlobalMessage={showGlobalMessage}
+                        setCurrentUser={setCurrentUser}
+                    />
                     }
                 />
             </Routes>
