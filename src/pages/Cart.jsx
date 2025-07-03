@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback,useRef  } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 
 const Cart = ({ API_BASE_URL, currentUser, showGlobalMessage, updateNavCartCount }) => {
   const navigate = useNavigate();
+    const hasRedirected = useRef(false); // 🛡️ prevent multiple navigations
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [subtotal, setSubtotal] = useState(0);
@@ -12,13 +13,49 @@ const Cart = ({ API_BASE_URL, currentUser, showGlobalMessage, updateNavCartCount
     setCartItems([]);
     setSubtotal(0);
 
-    if (!currentUser?.id) {
-      showGlobalMessage("Please log in to view your cart.", "error");
-      setLoading(false);
-      return navigate("/login");
-    }
+    // if (!currentUser?.id) {
+    //   showGlobalMessage("Please log in to view your cart.", "error");
+    //   setLoading(false);
+    //   return navigate("/login");
+    // }
 
-    try {
+      if (!currentUser?.id) {
+      if (!hasRedirected.current) {
+        hasRedirected.current = true;
+        showGlobalMessage("Please log in to view your cart.", "error");
+        setLoading(false);
+         setTimeout(() => {
+          
+          navigate("/login");
+        }, 1000);
+      }
+      return;
+    }
+  //   try {
+  //     const res = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`);
+  //     const data = await res.json();
+  //     if (res.ok && data.cartItems) {
+  //       setCartItems(data.cartItems);
+  //       const total = data.cartItems.reduce((acc, item) =>
+  //         acc + parseFloat(item.product_price) * item.quantity, 0
+  //       );
+  //       setSubtotal(total);
+  //       updateNavCartCount();
+  //     } else {
+  //       showGlobalMessage(data.message || "Failed to load cart.", "error");
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     showGlobalMessage("Failed to connect to the server.", "error");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, [API_BASE_URL, currentUser, showGlobalMessage, updateNavCartCount, navigate]);
+
+  // useEffect(() => {
+  //   fetchCartItems();
+  // }, [fetchCartItems]);
+  try {
       const res = await fetch(`${API_BASE_URL}/api/cart?user_id=${currentUser.id}`);
       const data = await res.json();
       if (res.ok && data.cartItems) {
