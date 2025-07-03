@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
-import Login from './pages/Login';
 import Signup from './pages/Signup';
 import About from './pages/About';
 import Footer from './components/Footer';
@@ -10,7 +9,6 @@ import Profile from './components/Profile';
 import Cart from './pages/Cart';
 import './index.css';
 import ProductDetail from './pages/ProductDetails';
-// import mode from './functions.js';
 import Logins from './components/Logins.jsx';
 import ForgotPassword from './pages/Forgot-password.jsx';
 import Reset_password from './pages/Reset_password.jsx';
@@ -37,10 +35,6 @@ const App = () => {
     const [message, setMessage] = useState({ text: "", type: "" });
     const [cartCount, setCartCount] = useState(0);
 
-    // useEffect(() => {
-    //     mode(); // ✅ Apply theme on first render
-    // }, []);
-    // Effect to set up message display and auto-hide
     useEffect(() => {
         if (message.text) {
             const timer = setTimeout(() => {
