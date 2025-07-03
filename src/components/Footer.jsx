@@ -80,7 +80,7 @@ const Footer = () => {
           <img
             src="/SM.png"
             alt="Sebastian Macwan Logo"
-            className="h-16 w-auto object-contain  opacity-15  hover:opacity-40" // Set a fixed height, auto width, and object-contain to fit without distortion
+            className="h-10 w-auto object-contain  opacity-15  hover:opacity-40" // Set a fixed height, auto width, and object-contain to fit without distortion
           />
         </div>
       </div>
