@@ -123,6 +123,7 @@ app.post("/api/login", async (req, res) => {
                 id: user.id,
                 username: user.username,
                 email: user.email,
+                 profileurl: user.profileurl
             },
         });
     } catch (err) {
@@ -238,10 +239,7 @@ app.put("/api/user/update-avatar", async (req, res) => {
     if (!id || !profileUrl) {
         return res.status(400).json({ message: "Missing user ID or avatar URL." });
     }
-    //  added new url image  feature
-    //     if (profileUrl.startsWith("data:image/") || url.startsWith("http") && profileUrl.length > 500000) {
-    //     return res.status(400).json({ message: "Image too large." });
-    //   }
+    
     if (
         profileUrl.length > 500000 &&
         (profileUrl.startsWith("data:image/") || profileUrl.startsWith("http"))

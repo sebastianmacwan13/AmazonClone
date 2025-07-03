@@ -13,22 +13,45 @@ const Profile = ({ currentUser, setCurrentUser, API_BASE_URL, showGlobalMessage 
   const [avatarPreview, setAvatarPreview] = useState('https://placehold.co/120x120?text=Avatar');
   const [activeTab, setActiveTab] = useState('info');
 
+  // useEffect(() => {
+  //   if (!currentUser) {
+  //     showGlobalMessage("Please log in to view your profile.", "error");
+  //     navigate("/login");
+  //     return;
+  //   }
+
+  //   setProfileUsername(currentUser.username || '');
+  //   setProfileEmail(currentUser.email || '');
+
+  //   const avatarKey = `avatar_${currentUser.id}`;
+  //   const savedAvatar = localStorage.getItem(avatarKey);
+  //   if (savedAvatar) {
+  //     setAvatarPreview(savedAvatar);
+  //   }
+  // }, [currentUser, navigate, showGlobalMessage]);
   useEffect(() => {
-    if (!currentUser) {
-      showGlobalMessage("Please log in to view your profile.", "error");
-      navigate("/login");
-      return;
-    }
+  if (!currentUser) {
+    showGlobalMessage("Please log in to view your profile.", "error");
+    navigate("/login");
+    return;
+  }
 
-    setProfileUsername(currentUser.username || '');
-    setProfileEmail(currentUser.email || '');
+  setProfileUsername(currentUser.username || '');
+  setProfileEmail(currentUser.email || '');
 
+  // ✅ First try to load from backend
+  if (currentUser.profileurl) {
+    setAvatarPreview(currentUser.profileurl);
+  } else {
+    // Fallback to localStorage
     const avatarKey = `avatar_${currentUser.id}`;
     const savedAvatar = localStorage.getItem(avatarKey);
     if (savedAvatar) {
       setAvatarPreview(savedAvatar);
     }
-  }, [currentUser, navigate, showGlobalMessage]);
+  }
+}, [currentUser, navigate, showGlobalMessage]);
+
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
@@ -47,9 +70,18 @@ const Profile = ({ currentUser, setCurrentUser, API_BASE_URL, showGlobalMessage 
             body: JSON.stringify({ id: currentUser.id, profileUrl: base64Image }),
           });
           const data = await res.json();
+          // if (res.ok) {
+          //   showGlobalMessage("Avatar updated successfully!", "success");
+          // }
           if (res.ok) {
-            showGlobalMessage("Avatar updated successfully!", "success");
-          } else {
+  showGlobalMessage("Avatar updated successfully!", "success");
+
+  const updatedUser = { ...currentUser, profileurl: base64Image };
+  localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+  setCurrentUser?.(updatedUser);
+}
+
+          else {
             showGlobalMessage(data.message || "Failed to update avatar.", "error");
           }
         } catch (err) {
