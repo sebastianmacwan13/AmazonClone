@@ -23,11 +23,25 @@ const app = express();
 // --- Middleware Configuration ---
 
 // Enable CORS for all routes. It's crucial to place this early.
-// app.use(cors());
+// app.use(cors({
+//   origin: 'https://amazon-clone-frontend-seven-puce.vercel.app',
+//   credentials: true
+// }));
+const allowedOrigins = [
+  'https://amazon-clone-frontend-seven-puce.vercel.app',
+  'https://amazon-clone-reactversion-1.onrender.com'
+];
+
 app.use(cors({
-  origin: 'https://amazon-clone-frontend-seven-puce.vercel.app',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
+
 
 // Parse incoming request bodies in JSON format
 app.use(bodyParser.json());
