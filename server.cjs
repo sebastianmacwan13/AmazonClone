@@ -29,7 +29,8 @@ const app = express();
 // }));
 const allowedOrigins = [
   'https://amazon-clone-frontend-seven-puce.vercel.app',
-  'https://amazon-clone-reactversion-1.onrender.com'
+//   'https://amazon-clone-reactversion-1.onrender.com'
+'http://localhost:5173'
 ];
 
 app.use(cors({
