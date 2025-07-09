@@ -381,7 +381,12 @@ app.use((err, req, res, next) => {
 // ==========================
 // Start Server
 // ==========================
+// const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => {
+//     console.log(`✅ Server running on http://localhost:${PORT}`);
+// });
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`✅ Server running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => { // <-- Add '0.0.0.0' here
+    console.log(`✅ Server running on http://0.0.0.0:${PORT}`); // Update console log for clarity
 });
