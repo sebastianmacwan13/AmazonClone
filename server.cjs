@@ -22,11 +22,6 @@ const app = express();
 
 // --- Middleware Configuration ---
 
-// Enable CORS for all routes. It's crucial to place this early.
-// app.use(cors({
-//   origin: 'https://amazon-clone-frontend-seven-puce.vercel.app',
-//   credentials: true
-// }));
 const allowedOrigins = [
   'https://amazon-clone-frontend-seven-puce.vercel.app',
 //   'https://amazon-clone-reactversion-1.onrender.com'
@@ -48,7 +43,6 @@ app.use(cors({
 app.use(bodyParser.json());
 
 // Serve static files from the 'public' directory (for frontend build)
-// app.use(express.static(path.join(__dirname, ".")));
 app.use(express.json());
 
 // --- Nodemailer Transporter Configuration ---
@@ -376,16 +370,6 @@ app.post("/api/send_mail", upload.single("attachment"), async (req, res) => {
 app.get('/api/test', (req, res) => {
     res.json({ message: 'API proxy working!' })
 });
-
-// ==========================
-// Fallback for SPA Routes
-// This should be the very last route definition.
-// It sends 'index.html' for any request that doesn't match previous routes,
-// which is common for Single Page Applications (SPAs).
-// ==========================
-// app.get("*", (req, res) => {
-//     res.sendFile(path.join(__dirname, "public", "index.html"));
-// });
 
 // --- Global Error Handling Middleware ---
 app.use((err, req, res, next) => {
