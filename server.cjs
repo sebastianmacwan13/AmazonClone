@@ -365,6 +365,10 @@ app.post("/api/send_mail", upload.single("attachment"), async (req, res) => {
         res.status(500).json({ error: "Failed to send email" });
     }
 });
+
+app.get('/', (req, res) => {
+  res.status(200).send('Backend is healthy!');
+});
 // proxy check code 
 
 app.get('/api/test', (req, res) => {
