@@ -81,43 +81,6 @@ router.get('/:id', async (req, res) => {
         });
     }
 });
-// --- Route to add a new product (POST /api/products) ---
-// router.post('/', async (req, res) => {
-//     const { title, image, description, price, category } = req.body;
-
-//     console.log('Attempting to add a new product:', req.body);
-
-//     // Basic validation
-//     if (!title || !price) {
-//         return res.status(400).json({ message: 'Title and price are required.' });
-//     }
-
-//     try {
-//         const insertProductQuery = `
-//             INSERT INTO products (title, image, description, price, category)
-//             VALUES ($1, $2, $3, $4, $5)
-//             RETURNING *;
-//         `;
-
-//         const values = [title, image, description, price, category];
-
-//         const result = await pool.query(insertProductQuery, values);
-
-//         console.log('Product added successfully:', result.rows[0]);
-
-//         res.status(201).json({
-//             message: 'Product added successfully!',
-//             product: result.rows[0]
-//         });
-
-//     } catch (error) {
-//         console.error('ERROR in POST /api/products:', error.message);
-//         res.status(500).json({
-//             message: 'Server error while adding product.',
-//             error: error.message
-//         });
-//     }
-// });
 
 // --- Route to add a new product (POST /api/products) ---
 router.post('/', verifyToken, verifyAdmin, async (req, res) => {
@@ -152,6 +115,80 @@ router.post('/', verifyToken, verifyAdmin, async (req, res) => {
             error: error.message
         });
     }
+});
+
+// --- Update product ---
+router.put('/:id', verifyToken, verifyAdmin, async (req, res) => {
+//   const { id } = req.params;
+const id = parseInt(req.params.id, 10);
+
+  const { title, image, description, price, category } = req.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE products
+       SET title = $1, image = $2, description = $3, price = $4, category = $5
+       WHERE id = $6
+       RETURNING *;`,
+      [title, image, description, price, category, id]
+    );
+
+    if (result.rows.length === 0) return res.status(404).json({ message: 'Product not found' });
+
+    res.status(200).json({ message: 'Product updated successfully!', product: result.rows[0] });
+  } catch (error) {
+    console.error('ERROR updating product:', error.message);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// // --- Delete product ---
+// router.delete('/:id', verifyToken, verifyAdmin, async (req, res) => {
+// //   const { id } = req.params;
+//   const id = parseInt(req.params.id, 10);
+
+
+//   try {
+//     const result = await pool.query(
+//       `DELETE FROM products WHERE id = $1 RETURNING *;`,
+//       [id]
+//     );
+
+//     if (result.rows.length === 0) return res.status(404).json({ message: 'Product not found' });
+
+//     res.status(200).json({ message: 'Product deleted successfully!', product: result.rows[0] });
+//   } catch (error) {
+//     console.error('ERROR deleting product:', error.message);
+//     res.status(500).json({ message: 'Server error', error: error.message });
+//   }
+// });
+router.delete('/:id', verifyToken, async (req, res) => {
+  console.log("DELETE /api/products/:id called");
+  console.log("req.params.id:", req.params.id);
+  console.log("req.user:", req.user);
+
+  const id = parseInt(req.params.id, 10);
+  console.log("Backend received DELETE request for product ID:", id);
+  console.log("Parsed ID:", id);
+
+  try {
+    const result = await pool.query(
+      `DELETE FROM products WHERE id = $1 RETURNING *;`,
+      [id]
+    );
+
+    console.log("Delete query result:", result.rows);
+
+    if (result.rows.length === 0) {
+      console.log("Product not found in DB for deletion.");
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.status(200).json({ message: 'Product deleted successfully!', product: result.rows[0] });
+  } catch (error) {
+    console.error('ERROR deleting product:', error.message);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
 });
 
 module.exports = router;
