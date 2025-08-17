@@ -124,44 +124,7 @@ const ProductDetail = ({ API_BASE_URL, currentUser, showGlobalMessage, updateNav
   }
 
   return (
-    // <div className="max-w-6xl mx-auto px-4 py-10">
-    //   <div className="flex flex-col md:flex-row bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-    //     {/* Product Image */}
-    //     <div className="md:w-1/2 flex justify-center items-center p-6">
-    //       <img
-    //         src={product.image || 'https://placehold.co/400x400?text=No+Image'}
-    //         alt={product.title}
-    //         className="max-w-full max-h-[400px] rounded-lg object-contain"
-    //       />
-    //     </div>
-
-    //     {/* Product Details */}
-    //     <div className="md:w-1/2 p-6 flex flex-col justify-center space-y-5">
-    //       <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{product.title}</h1>
-    //       <p className="text-2xl text-red-600 dark:text-red-400 font-semibold">
-    //         ₹{parseFloat(product.price).toFixed(2)}
-    //       </p>
-    //       <p className="text-gray-700 dark:text-gray-300">{product.description || "No description provided."}</p>
-
-    //       <div className="flex flex-col sm:flex-row gap-4 mt-6">
-    //         <button
-    //           onClick={handleAddToCart}
-    //           className="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-md text-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-400"
-    //         >
-    //           Add to Cart
-    //         </button>
-
-    //         <NavLink
-    //           to="/cart"
-    //           className="border border-gray-400 dark:border-gray-600 text-gray-700 dark:text-white py-3 px-6 rounded-md text-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-    //         >
-    //           View Cart
-    //         </NavLink>
-    //       </div>
-    //     </div>
-    //   </div>
-    // </div>
-    <div className="max-w-6xl mx-auto px-4 py-10">
+       <div className="max-w-6xl mx-auto px-4 py-10">
   <div className="flex flex-col lg:flex-row bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all duration-300">
 
     {/* Product Image */}

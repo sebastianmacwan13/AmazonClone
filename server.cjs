@@ -1,4 +1,9 @@
 require("dotenv").config();
+if (!process.env.JWT_SECRET) {
+  console.error("❌ JWT_SECRET is missing! Check your .env file or path.");
+} else {
+  console.log("✅ JWT_SECRET loaded.");
+}
 
 // Import necessary modules
 const express = require("express");
@@ -9,6 +14,8 @@ const nodemailer = require("nodemailer");
 const multer = require("multer");
 const path = require("path");
 const crypto = require("crypto"); // For generating secure tokens
+const jwt = require("jsonwebtoken");
+
 
 // Database connection pool (assuming db.cjs exports a pg.Pool instance)
 const db = require("./config/db.cjs"); // Using 'db' for the pool
@@ -109,36 +116,87 @@ app.post("/api/signup", async (req, res) => {
 });
 
 // Login Route
+// app.post("/api/login", async (req, res) => {
+//     const { email, password } = req.body;
+
+//     if (!email || !password)
+//         return res.status(400).json({ message: "Email and password required" });
+
+//     try {
+//         const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+
+//         if (result.rows.length === 0)
+//             return res.status(401).json({ message: "Invalid email or password" });
+
+//         const user = result.rows[0];
+//         const isMatch = await bcrypt.compare(password, user.password);
+//         if (!isMatch)
+//             return res.status(401).json({ message: "Invalid email or password" });
+
+//         res.json({
+//             message: "Login successful",
+//             user: {
+//                 id: user.id,
+//                 username: user.username,
+//                 email: user.email,
+//                  profileurl: user.profileurl
+//             },
+//         });
+//     } catch (err) {
+//         console.error("Login error:", err);
+//         res.status(500).json({ message: "Internal server error" });
+//     }
+// });
 app.post("/api/login", async (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    if (!email || !password)
-        return res.status(400).json({ message: "Email and password required" });
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required." });
+  }
 
-    try {
-        const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+  try {
+    // ✅ Fetch the user by email only
+    const query = `
+      SELECT id, username, email, password, role 
+      FROM users 
+      WHERE email = $1
+    `;
+    const result = await db.query(query, [email]);
 
-        if (result.rows.length === 0)
-            return res.status(401).json({ message: "Invalid email or password" });
-
-        const user = result.rows[0];
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch)
-            return res.status(401).json({ message: "Invalid email or password" });
-
-        res.json({
-            message: "Login successful",
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                 profileurl: user.profileurl
-            },
-        });
-    } catch (err) {
-        console.error("Login error:", err);
-        res.status(500).json({ message: "Internal server error" });
+    if (result.rows.length === 0) {
+      return res.status(400).json({ message: "User not found" });
     }
+
+    const user = result.rows[0];
+
+    // ✅ Compare password
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // ✅ Generate JWT
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // ✅ Send safe user object (no password)
+    res.json({
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
+      token,
+    });
+
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error during login" });
+  }
 });
 
 // Forgot Password Route (Request to send reset link)
@@ -365,7 +423,7 @@ app.post("/api/send_mail", upload.single("attachment"), async (req, res) => {
         res.status(500).json({ error: "Failed to send email" });
     }
 });
-
+// health check 
 app.get('/', (req, res) => {
   res.status(200).send('Backend is healthy!');
 });

@@ -14,8 +14,7 @@ const authenticateUser = (req, res, next) => {
     // For GET/DELETE requests, check req.query.user_id or req.params.user_id
     else if (req.method === 'GET' || req.method === 'DELETE') {
         userId = req.query && req.query.user_id; // Frontend sends user_id as query param for GET/DELETE cart
-        // If you were to use a route parameter (e.g., /api/cart/:userId), you'd also check req.params.userId
-        // if (!userId) { userId = req.params.userId; }
+        
     }
 
     req.userId = userId; // Attach userId to the request object for later use

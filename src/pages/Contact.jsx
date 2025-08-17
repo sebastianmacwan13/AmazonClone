@@ -9,14 +9,6 @@ const Contactform = () => {
   const [status, setStatus] = useState({ type: '', message: '' });
   const formRef = useRef(null);
 
-  // useEffect(() => {
-  //   const storedUser = localStorage.getItem("user");
-  //   if (!storedUser) {
-  //     navigate("/login"); // 🔒 Redirect to login if not authenticated
-  //   } else {
-  //     setUser(JSON.parse(storedUser)); // Set user info to state
-  //   }
-  // }, []);
   useEffect(() => {
   const storedUser = localStorage.getItem("currentUser");
 
