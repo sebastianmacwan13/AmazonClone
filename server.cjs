@@ -66,6 +66,7 @@ const transporter = nodemailer.createTransport({
 const productsRouter = require("./routes/products.cjs");
 // Import your cart routes
 const cartRoutes = require('./routes/carts.cjs'); // Make sure cart.cjs exists and exports a router
+const { verifyToken } = require("./middlewares/auth.cjs");
 
 // --- Route Mounting ---
 // Mount the products router under the /api/products path.
@@ -300,27 +301,63 @@ app.post("/api/reset-password", async (req, res) => {
     }
 });
 
-app.put("/api/user/update-avatar", async (req, res) => {
-    const { id, profileUrl } = req.body;
+// app.put("/api/user/update-avatar", async (req, res) => {
+//     const { id, profileUrl } = req.body;
 
-    if (!id || !profileUrl) {
-        return res.status(400).json({ message: "Missing user ID or avatar URL." });
-    }
+//     if (!id || !profileUrl) {
+//         return res.status(400).json({ message: "Missing user ID or avatar URL." });
+//     }
     
-    if (
-        profileUrl.length > 500000 &&
-        (profileUrl.startsWith("data:image/") || profileUrl.startsWith("http"))
-    ) {
-        return res.status(400).json({ message: "Image too large." });
+//     if (
+//         profileUrl.length > 500000 &&
+//         (profileUrl.startsWith("data:image/") || profileUrl.startsWith("http"))
+//     ) {
+//         return res.status(400).json({ message: "Image too large." });
+//     }
+
+//     try {
+//         await db.query("UPDATE users SET profileurl = $1 WHERE id = $2", [profileUrl, id]);
+//         res.status(200).json({ message: "Avatar updated successfully." });
+//     } catch (err) {
+//         console.error("Avatar update error:", err);
+//         res.status(500).json({ message: "Failed to update avatar." });
+//     }
+// });
+// Fetch user profile
+app.get("/api/profile", verifyToken, async (req, res) => {
+  try {
+    const result = await db.query(
+      "SELECT id, username, email, role, profileurl FROM users WHERE id = $1",
+      [req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "User not found." });
     }
 
-    try {
-        await db.query("UPDATE users SET profileurl = $1 WHERE id = $2", [profileUrl, id]);
-        res.status(200).json({ message: "Avatar updated successfully." });
-    } catch (err) {
-        console.error("Avatar update error:", err);
-        res.status(500).json({ message: "Failed to update avatar." });
-    }
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Profile fetch error:", err);
+    res.status(500).json({ message: "Failed to fetch profile." });
+  }
+});
+
+// Update avatar
+app.put("/api/user/update-avatar", verifyToken, async (req, res) => {
+  const { profileUrl } = req.body;
+  const id = req.user.id;
+
+  if (!profileUrl) {
+    return res.status(400).json({ message: "Missing avatar URL." });
+  }
+
+  try {
+    await db.query("UPDATE users SET profileurl = $1 WHERE id = $2", [profileUrl, id]);
+    res.status(200).json({ message: "Avatar updated successfully." });
+  } catch (err) {
+    console.error("Avatar update error:", err);
+    res.status(500).json({ message: "Failed to update avatar." });
+  }
 });
 
 
