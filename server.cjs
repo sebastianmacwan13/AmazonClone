@@ -406,6 +406,19 @@ app.post("/api/send_mail", upload.single("attachment"), async (req, res) => {
         res.status(500).json({ error: "Failed to send email" });
     }
 });
+
+// Logout Route
+app.post("/api/logout", verifyToken, (req, res) => {
+  try {
+    // For JWT, you can't invalidate the token on server unless you use a blacklist.
+    // But you can still respond OK so frontend clears its storage.
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ message: "Logout failed" });
+  }
+});
+
 // health check 
 app.get('/', (req, res) => {
   res.status(200).send('Backend is healthy!');
@@ -422,17 +435,6 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke on the server!'); // Send a generic error response
 });
 
-// Logout Route
-app.post("/api/logout", verifyToken, (req, res) => {
-  try {
-    // For JWT, you can't invalidate the token on server unless you use a blacklist.
-    // But you can still respond OK so frontend clears its storage.
-    res.status(200).json({ message: "Logged out successfully" });
-  } catch (error) {
-    console.error("Logout error:", error);
-    res.status(500).json({ message: "Logout failed" });
-  }
-});
 
 // ==========================
 // Start Server
