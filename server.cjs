@@ -116,38 +116,6 @@ app.post("/api/signup", async (req, res) => {
     }
 });
 
-// Login Route
-// app.post("/api/login", async (req, res) => {
-//     const { email, password } = req.body;
-
-//     if (!email || !password)
-//         return res.status(400).json({ message: "Email and password required" });
-
-//     try {
-//         const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
-
-//         if (result.rows.length === 0)
-//             return res.status(401).json({ message: "Invalid email or password" });
-
-//         const user = result.rows[0];
-//         const isMatch = await bcrypt.compare(password, user.password);
-//         if (!isMatch)
-//             return res.status(401).json({ message: "Invalid email or password" });
-
-//         res.json({
-//             message: "Login successful",
-//             user: {
-//                 id: user.id,
-//                 username: user.username,
-//                 email: user.email,
-//                  profileurl: user.profileurl
-//             },
-//         });
-//     } catch (err) {
-//         console.error("Login error:", err);
-//         res.status(500).json({ message: "Internal server error" });
-//     }
-// });
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -301,28 +269,6 @@ app.post("/api/reset-password", async (req, res) => {
     }
 });
 
-// app.put("/api/user/update-avatar", async (req, res) => {
-//     const { id, profileUrl } = req.body;
-
-//     if (!id || !profileUrl) {
-//         return res.status(400).json({ message: "Missing user ID or avatar URL." });
-//     }
-    
-//     if (
-//         profileUrl.length > 500000 &&
-//         (profileUrl.startsWith("data:image/") || profileUrl.startsWith("http"))
-//     ) {
-//         return res.status(400).json({ message: "Image too large." });
-//     }
-
-//     try {
-//         await db.query("UPDATE users SET profileurl = $1 WHERE id = $2", [profileUrl, id]);
-//         res.status(200).json({ message: "Avatar updated successfully." });
-//     } catch (err) {
-//         console.error("Avatar update error:", err);
-//         res.status(500).json({ message: "Failed to update avatar." });
-//     }
-// });
 // Fetch user profile
 app.get("/api/profile", verifyToken, async (req, res) => {
   try {
@@ -476,6 +422,17 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke on the server!'); // Send a generic error response
 });
 
+// Logout Route
+app.post("/api/logout", verifyToken, (req, res) => {
+  try {
+    // For JWT, you can't invalidate the token on server unless you use a blacklist.
+    // But you can still respond OK so frontend clears its storage.
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ message: "Logout failed" });
+  }
+});
 
 // ==========================
 // Start Server

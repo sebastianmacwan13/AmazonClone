@@ -20,4 +20,5 @@ function verifyAdmin(req, res, next) {
   next();
 }
 
+
 module.exports = { verifyToken, verifyAdmin };
