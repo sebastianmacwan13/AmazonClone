@@ -31,8 +31,8 @@ const app = express();
 
 const allowedOrigins = [
   'https://amazon-clone-frontend-seven-puce.vercel.app',
-//   'https://amazon-clone-reactversion-1.onrender.com'
-'http://localhost:5173'
+  //   'https://amazon-clone-reactversion-1.onrender.com'
+  'http://localhost:5173'
 ];
 
 app.use(cors({
@@ -54,12 +54,14 @@ app.use(express.json());
 
 // --- Nodemailer Transporter Configuration ---
 const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-    },
+  service: "gmail",
+  auth: {
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+  },
 });
+// Serve uploaded files statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // --- Route Imports ---
 // Import your product routes
@@ -83,37 +85,37 @@ app.use('/api/cart', cartRoutes);
 
 // Signup Route
 app.post("/api/signup", async (req, res) => {
-    const { username, email, password } = req.body;
+  const { username, email, password } = req.body;
 
-    if (!username || !email || !password)
-        return res.status(400).json({ message: "All fields are required" });
+  if (!username || !email || !password)
+    return res.status(400).json({ message: "All fields are required" });
 
-    try {
-        const existingUser = await db.query("SELECT * FROM users WHERE email = $1", [email]);
-        if (existingUser.rows.length > 0) {
-            return res.status(409).json({ message: "User already exists. Please login." });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await db.query("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
-            [username, email, hashedPassword]);
-
-        // After successful signup, fetch the newly created user to return to frontend
-        const newUserResult = await db.query("SELECT id, username, email FROM users WHERE email = $1", [email]);
-        const newUser = newUserResult.rows[0];
-
-        res.status(201).json({
-            message: "Signup successful",
-            user: {
-                id: newUser.id,
-                username: newUser.username,
-                email: newUser.email,
-            },
-        });
-    } catch (err) {
-        console.error("Signup error:", err);
-        res.status(500).json({ message: "Signup failed" });
+  try {
+    const existingUser = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (existingUser.rows.length > 0) {
+      return res.status(409).json({ message: "User already exists. Please login." });
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await db.query("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
+      [username, email, hashedPassword]);
+
+    // After successful signup, fetch the newly created user to return to frontend
+    const newUserResult = await db.query("SELECT id, username, email FROM users WHERE email = $1", [email]);
+    const newUser = newUserResult.rows[0];
+
+    res.status(201).json({
+      message: "Signup successful",
+      user: {
+        id: newUser.id,
+        username: newUser.username,
+        email: newUser.email,
+      },
+    });
+  } catch (err) {
+    console.error("Signup error:", err);
+    res.status(500).json({ message: "Signup failed" });
+  }
 });
 
 app.post("/api/login", async (req, res) => {
@@ -170,103 +172,103 @@ app.post("/api/login", async (req, res) => {
 
 // Forgot Password Route (Request to send reset link)
 app.post("/api/forgot-password", async (req, res) => {
-    const { email } = req.body;
-    console.log("Forgot password request received for email:", email);
+  const { email } = req.body;
+  console.log("Forgot password request received for email:", email);
 
-    if (!email) {
-        return res.status(400).json({ message: "Email is required." });
+  if (!email) {
+    return res.status(400).json({ message: "Email is required." });
+  }
+
+  try {
+    const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+    const user = result.rows[0];
+
+    if (!user) {
+      console.log("User not found for forgot password request:", email);
+      return res.status(200).json({ message: "If an account with that email exists, a password reset link has been sent." });
     }
 
-    try {
-        const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
-        const user = result.rows[0];
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const resetExpires = Date.now() + 3600000; // 1 hour in milliseconds
+    console.log("Generated reset token:", resetToken, "Expires:", new Date(resetExpires));
 
-        if (!user) {
-            console.log("User not found for forgot password request:", email);
-            return res.status(200).json({ message: "If an account with that email exists, a password reset link has been sent." });
-        }
+    await db.query(
+      "UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3",
+      [resetToken, resetExpires, user.id]
+    );
+    console.log("Updated user with reset token in DB for user ID:", user.id);
 
-        const resetToken = crypto.randomBytes(32).toString("hex");
-        const resetExpires = Date.now() + 3600000; // 1 hour in milliseconds
-        console.log("Generated reset token:", resetToken, "Expires:", new Date(resetExpires));
+    // Ensure process.env.FRONTEND_URL is correctly set in your .env file
+    // const resetUrl = `${process.env.FRONTEND_URL}/reset-password.html?token=${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/reset_password?token=${resetToken}`;
 
-        await db.query(
-            "UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3",
-            [resetToken, resetExpires, user.id]
-        );
-        console.log("Updated user with reset token in DB for user ID:", user.id);
+    console.log("Reset URL generated:", resetUrl);
 
-        // Ensure process.env.FRONTEND_URL is correctly set in your .env file
-        // const resetUrl = `${process.env.FRONTEND_URL}/reset-password.html?token=${resetToken}`;
-        const resetUrl = `${process.env.FRONTEND_URL}/reset_password?token=${resetToken}`;
-
-        console.log("Reset URL generated:", resetUrl);
-
-        const mailOptions = {
-            from: process.env.MAIL_USER,
-            to: user.email,
-            subject: "Password Reset Request for Amazon Clone",
-            html: `
+    const mailOptions = {
+      from: process.env.MAIL_USER,
+      to: user.email,
+      subject: "Password Reset Request for Amazon Clone",
+      html: `
                 <p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>
                 <p>Please click on the following link, or paste this into your browser to complete the process:</p>
                 <p><a href="${resetUrl}">${resetUrl}</a></p>
                 <p>This link will expire in 1 hour.</p>
                 <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
             `,
-        };
+    };
 
-        await transporter.sendMail(mailOptions);
-        console.log("Password reset email sent to:", user.email);
+    await transporter.sendMail(mailOptions);
+    console.log("Password reset email sent to:", user.email);
 
-        res.status(200).json({ message: "If an account with that email exists, a password reset link has been sent." });
-    } catch (err) {
-        console.error("Forgot password error in catch block:", err);
-        res.status(500).json({ message: "Failed to send password reset email." });
-    }
+    res.status(200).json({ message: "If an account with that email exists, a password reset link has been sent." });
+  } catch (err) {
+    console.error("Forgot password error in catch block:", err);
+    res.status(500).json({ message: "Failed to send password reset email." });
+  }
 });
 
 // Reset Password Route (Verify token and set new password)
 app.post("/api/reset-password", async (req, res) => {
-    const { token, newPassword } = req.body;
-    console.log("Reset password request received for token (first few chars):", token ? token.substring(0, 10) + "..." : "N/A");
+  const { token, newPassword } = req.body;
+  console.log("Reset password request received for token (first few chars):", token ? token.substring(0, 10) + "..." : "N/A");
 
-    if (!token || !newPassword) {
-        console.warn("Reset password: Missing token or new password.");
-        return res.status(400).json({ message: "Token and new password are required." });
+  if (!token || !newPassword) {
+    console.warn("Reset password: Missing token or new password.");
+    return res.status(400).json({ message: "Token and new password are required." });
+  }
+
+  try {
+    const currentTime = Date.now();
+    console.log("Current timestamp for expiry check:", currentTime);
+
+    const result = await db.query(
+      "SELECT * FROM users WHERE reset_password_token = $1 AND reset_password_expires > $2",
+      [token, currentTime]
+    );
+    const user = result.rows[0];
+
+    if (!user) {
+      console.warn("Reset password: Token not found or expired for token:", token);
+      return res.status(400).json({ message: "Password reset token is invalid or has expired." });
     }
 
-    try {
-        const currentTime = Date.now();
-        console.log("Current timestamp for expiry check:", currentTime);
+    console.log("User found for reset password:", user.email);
 
-        const result = await db.query(
-            "SELECT * FROM users WHERE reset_password_token = $1 AND reset_password_expires > $2",
-            [token, currentTime]
-        );
-        const user = result.rows[0];
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    console.log("New password hashed.");
 
-        if (!user) {
-            console.warn("Reset password: Token not found or expired for token:", token);
-            return res.status(400).json({ message: "Password reset token is invalid or has expired." });
-        }
+    // Update password and clear reset token fields
+    await db.query(
+      "UPDATE users SET password = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2",
+      [hashedNewPassword, user.id]
+    );
 
-        console.log("User found for reset password:", user.email);
-
-        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-        console.log("New password hashed.");
-
-        // Update password and clear reset token fields
-        await db.query(
-            "UPDATE users SET password = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2",
-            [hashedNewPassword, user.id]
-        );
-
-        console.log("Password successfully reset and token cleared for user:", user.email);
-        res.status(200).json({ message: "Password has been reset successfully." });
-    } catch (err) {
-        console.error("Reset password error in catch block:", err);
-        res.status(500).json({ message: "Failed to reset password." });
-    }
+    console.log("Password successfully reset and token cleared for user:", user.email);
+    res.status(200).json({ message: "Password has been reset successfully." });
+  } catch (err) {
+    console.error("Reset password error in catch block:", err);
+    res.status(500).json({ message: "Failed to reset password." });
+  }
 });
 
 // Fetch user profile
@@ -309,102 +311,102 @@ app.put("/api/user/update-avatar", verifyToken, async (req, res) => {
 
 // Update username
 app.put("/api/user/update-username", async (req, res) => {
-    const { id, newUsername } = req.body;
+  const { id, newUsername } = req.body;
 
-    if (!id || !newUsername || newUsername.length < 3) {
-        return res.status(400).json({ message: "Invalid input. Username must be at least 3 characters." });
+  if (!id || !newUsername || newUsername.length < 3) {
+    return res.status(400).json({ message: "Invalid input. Username must be at least 3 characters." });
+  }
+
+  try {
+    // Optional: check if username already exists
+    const existing = await db.query("SELECT id FROM users WHERE username = $1 AND id != $2", [newUsername, id]);
+    if (existing.rows.length > 0) {
+      return res.status(409).json({ message: "Username already taken." });
     }
 
-    try {
-        // Optional: check if username already exists
-        const existing = await db.query("SELECT id FROM users WHERE username = $1 AND id != $2", [newUsername, id]);
-        if (existing.rows.length > 0) {
-            return res.status(409).json({ message: "Username already taken." });
-        }
+    await db.query("UPDATE users SET username = $1 WHERE id = $2", [newUsername, id]);
 
-        await db.query("UPDATE users SET username = $1 WHERE id = $2", [newUsername, id]);
-
-        res.status(200).json({ message: "Username updated successfully." });
-    } catch (err) {
-        console.error("Username update error:", err);
-        res.status(500).json({ message: "Failed to update username." });
-    }
+    res.status(200).json({ message: "Username updated successfully." });
+  } catch (err) {
+    console.error("Username update error:", err);
+    res.status(500).json({ message: "Failed to update username." });
+  }
 });
 
 
 // Update Email Route
 app.put("/api/user/update-email", async (req, res) => {
-    const { id, newEmail } = req.body;
+  const { id, newEmail } = req.body;
 
-    if (!id || !newEmail)
-        return res.status(400).json({ message: "User ID and new email required." });
+  if (!id || !newEmail)
+    return res.status(400).json({ message: "User ID and new email required." });
 
-    try {
-        await db.query("UPDATE users SET email = $1 WHERE id = $2", [newEmail, id]);
-        res.json({ message: "Email updated successfully." });
-    } catch (err) {
-        console.error("Update email error:", err);
-        res.status(500).json({ message: "Failed to update email." });
-    }
+  try {
+    await db.query("UPDATE users SET email = $1 WHERE id = $2", [newEmail, id]);
+    res.json({ message: "Email updated successfully." });
+  } catch (err) {
+    console.error("Update email error:", err);
+    res.status(500).json({ message: "Failed to update email." });
+  }
 });
 
 // Update Password Route
 app.put("/api/user/update-password", async (req, res) => {
-    const { id, oldPassword, newPassword } = req.body;
+  const { id, oldPassword, newPassword } = req.body;
 
-    if (!id || !oldPassword || !newPassword)
-        return res.status(400).json({ message: "All fields are required." });
+  if (!id || !oldPassword || !newPassword)
+    return res.status(400).json({ message: "All fields are required." });
 
-    try {
-        const result = await db.query("SELECT * FROM users WHERE id = $1", [id]);
-        if (result.rows.length === 0)
-            return res.status(404).json({ message: "User not found." });
+  try {
+    const result = await db.query("SELECT * FROM users WHERE id = $1", [id]);
+    if (result.rows.length === 0)
+      return res.status(404).json({ message: "User not found." });
 
-        const user = result.rows[0];
-        const isMatch = await bcrypt.compare(oldPassword, user.password);
-        if (!isMatch)
-            return res.status(401).json({ message: "Old password is incorrect." });
+    const user = result.rows[0];
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch)
+      return res.status(401).json({ message: "Old password is incorrect." });
 
-        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-        await db.query("UPDATE users SET password = $1 WHERE id = $2", [hashedNewPassword, id]);
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    await db.query("UPDATE users SET password = $1 WHERE id = $2", [hashedNewPassword, id]);
 
-        res.json({ message: "Password updated successfully." });
-    } catch (err) {
-        console.error("Update password error:", err);
-        res.status(500).json({ message: "Failed to update password." });
-    }
+    res.json({ message: "Password updated successfully." });
+  } catch (err) {
+    console.error("Update password error:", err);
+    res.status(500).json({ message: "Failed to update password." });
+  }
 });
 
 // Contact Form Route
 app.post("/api/send_mail", upload.single("attachment"), async (req, res) => {
-    const { name, email, subject, message } = req.body;
-    const file = req.file;
+  const { name, email, subject, message } = req.body;
+  const file = req.file;
 
-    if (!name || !email || !subject || !message)
-        return res.status(400).json({ error: "All fields are required." });
+  if (!name || !email || !subject || !message)
+    return res.status(400).json({ error: "All fields are required." });
 
-    try {
-        const mailOptions = {
-            from: `"${name}" <${process.env.MAIL_USER}>`,
-            to: process.env.MAIL_RECEIVER,
-            subject: subject,
-            html: `
+  try {
+    const mailOptions = {
+      from: `"${name}" <${process.env.MAIL_USER}>`,
+      to: process.env.MAIL_RECEIVER,
+      subject: subject,
+      html: `
                 <p><strong>Name:</strong> ${name}</p>
                 <p><strong>Email:</strong> ${email}</p>
                 <p><strong>Subject:</strong> ${subject}</p>
                 <p><strong>Message:</strong><br>${message}</p>
             `,
-            attachments: file
-                ? [{ filename: file.originalname, content: file.buffer }]
-                : [],
-        };
+      attachments: file
+        ? [{ filename: file.originalname, content: file.buffer }]
+        : [],
+    };
 
-        await transporter.sendMail(mailOptions);
-        res.status(200).json({ message: "Email sent successfully" });
-    } catch (error) {
-        console.error("Email error:", error);
-        res.status(500).json({ error: "Failed to send email" });
-    }
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: "Email sent successfully" });
+  } catch (error) {
+    console.error("Email error:", error);
+    res.status(500).json({ error: "Failed to send email" });
+  }
 });
 
 // Logout Route
@@ -426,13 +428,13 @@ app.get('/', (req, res) => {
 // proxy check code 
 
 app.get('/api/test', (req, res) => {
-    res.json({ message: 'API proxy working!' })
+  res.json({ message: 'API proxy working!' })
 });
 
 // --- Global Error Handling Middleware ---
 app.use((err, req, res, next) => {
-    console.error("Unhandled server error:", err.stack); // Log the stack trace
-    res.status(500).send('Something broke on the server!'); // Send a generic error response
+  console.error("Unhandled server error:", err.stack); // Log the stack trace
+  res.status(500).send('Something broke on the server!'); // Send a generic error response
 });
 
 
@@ -446,5 +448,5 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => { // <-- Add '0.0.0.0' here
-    console.log(`✅ Server running on http://0.0.0.0:${PORT}`); // Update console log for clarity
+  console.log(`✅ Server running on http://0.0.0.0:${PORT}`); // Update console log for clarity
 });

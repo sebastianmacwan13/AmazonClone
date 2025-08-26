@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/db.cjs'); // Make sure this path is correct relative to products.cjs
 const {verifyAdmin,verifyToken} = require('../middlewares/auth.cjs'); // Adjust the path as necessary
+const multer = require('multer');
+const path = require("path");
+
 // --- Route to get all products (GET /api/products is handled by app.use("/api/products", productsRouter) in server.cjs) ---
 router.get('/', async (req, res) => {
     console.log('Attempting to fetch all products from the database...');
@@ -82,41 +85,56 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// --- Route to add a new product (POST /api/products) ---
-router.post('/', verifyToken, verifyAdmin, async (req, res) => {
-    const { title, image, description, price, category } = req.body;
-
-    console.log('Attempting to add a new product:', req.body);
-
-    if (!title || !price) {
-        return res.status(400).json({ message: 'Title and price are required.' });
-    }
-
-    try {
-        const insertProductQuery = `
-            INSERT INTO products (title, image, description, price, category)
-            VALUES ($1, $2, $3, $4, $5)
-            RETURNING *;
-        `;
-        const values = [title, image, description, price, category];
-        const result = await pool.query(insertProductQuery, values);
-
-        console.log('Product added successfully:', result.rows[0]);
-
-        res.status(201).json({
-            message: 'Product added successfully!',
-            product: result.rows[0]
-        });
-
-    } catch (error) {
-        console.error('ERROR in POST /api/products:', error.message);
-        res.status(500).json({
-            message: 'Server error while adding product.',
-            error: error.message
-        });
-    }
+const storage = multer.diskStorage({
+  destination: "./uploads/",
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // unique filename
+  },
 });
 
+const upload = multer({ storage });
+
+// --- Route to add a new product (POST /api/products) ---
+// ✅ Now supports both URL & file upload
+router.post('/', verifyToken, verifyAdmin, upload.single("image"), async (req, res) => {
+  try {
+    const { title, description, price, category } = req.body;
+    let imageUrl = req.body.image; // default: URL-based
+
+    // If file is uploaded, override with local path
+    // if (req.file) {
+    //   imageUrl = `/uploads/${req.file.filename}`;
+    // }
+    if (req.file) {
+  imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+}
+
+
+    if (!title || !price) {
+      return res.status(400).json({ message: 'Title and price are required.' });
+    }
+
+    const insertProductQuery = `
+      INSERT INTO products (title, image, description, price, category)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *;
+    `;
+    const values = [title, imageUrl, description, price, category];
+    const result = await pool.query(insertProductQuery, values);
+
+    res.status(201).json({
+      message: '✅ Product added successfully!',
+      product: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('ERROR in POST /api/products:', error.message);
+    res.status(500).json({
+      message: 'Server error while adding product.',
+      error: error.message
+    });
+  }
+});
 // --- Update product ---
 router.put('/:id', verifyToken, verifyAdmin, async (req, res) => {
 //   const { id } = req.params;
@@ -143,25 +161,6 @@ const id = parseInt(req.params.id, 10);
 });
 
 // // --- Delete product ---
-// router.delete('/:id', verifyToken, verifyAdmin, async (req, res) => {
-// //   const { id } = req.params;
-//   const id = parseInt(req.params.id, 10);
-
-
-//   try {
-//     const result = await pool.query(
-//       `DELETE FROM products WHERE id = $1 RETURNING *;`,
-//       [id]
-//     );
-
-//     if (result.rows.length === 0) return res.status(404).json({ message: 'Product not found' });
-
-//     res.status(200).json({ message: 'Product deleted successfully!', product: result.rows[0] });
-//   } catch (error) {
-//     console.error('ERROR deleting product:', error.message);
-//     res.status(500).json({ message: 'Server error', error: error.message });
-//   }
-// });
 router.delete('/:id', verifyToken, async (req, res) => {
   console.log("DELETE /api/products/:id called");
   console.log("req.params.id:", req.params.id);
