@@ -31,8 +31,7 @@ const app = express();
 
 const allowedOrigins = [
   'https://amazon-clone-frontend-seven-puce.vercel.app',
-  //   'https://amazon-clone-reactversion-1.onrender.com'
-  'http://localhost:5173'
+    'http://localhost:5173'
 ];
 
 app.use(cors({
@@ -84,6 +83,41 @@ app.use('/api/cart', cartRoutes);
 // ==========================
 
 // Signup Route
+// app.post("/api/signup", async (req, res) => {
+//   const { username, email, password } = req.body;
+
+//   if (!username || !email || !password)
+//     return res.status(400).json({ message: "All fields are required" });
+
+//   try {
+//     const existingUser = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+//     if (existingUser.rows.length > 0) {
+//       return res.status(409).json({ message: "User already exists. Please login." });
+//     }
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+//     await db.query("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
+//       [username, email, hashedPassword]);
+
+//     // After successful signup, fetch the newly created user to return to frontend
+//     const newUserResult = await db.query("SELECT id, username, email FROM users WHERE email = $1", [email]);
+//     const newUser = newUserResult.rows[0];
+
+//     res.status(201).json({
+//       message: "Signup successful",
+//       user: {
+//         id: newUser.id,
+//         username: newUser.username,
+//         email: newUser.email,
+//       },
+//     });
+//   } catch (err) {
+//     console.error("Signup error:", err);
+//     res.status(500).json({ message: "Signup failed" });
+//   }
+// });
+  //29/09/2025 confirmation mail
+  // Signup Route
 app.post("/api/signup", async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -96,21 +130,45 @@ app.post("/api/signup", async (req, res) => {
       return res.status(409).json({ message: "User already exists. Please login." });
     }
 
+    // Hash password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
-    await db.query("INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
-      [username, email, hashedPassword]);
+    await db.query(
+      "INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
+      [username, email, hashedPassword]
+    );
 
-    // After successful signup, fetch the newly created user to return to frontend
-    const newUserResult = await db.query("SELECT id, username, email FROM users WHERE email = $1", [email]);
+    const newUserResult = await db.query(
+      "SELECT id, username, email FROM users WHERE email = $1",
+      [email]
+    );
     const newUser = newUserResult.rows[0];
 
+    // ---------------------------
+    // ✉️ Send verification email
+    // ---------------------------
+    const mailOptions = {
+      from: process.env.MAIL_USER,
+      to: email,
+      subject: "Welcome to Amazon Clone - Account Created 🎉",
+      html: `
+        <h2>Hello ${username},</h2>
+        <p>Your account has been created successfully!</p>
+        <p><b>Username:</b> ${username}</p>
+        <p><b>Email:</b> ${email}</p>
+        <p><b>Password:</b> ${password}</p>
+        <br>
+        <p>You can now <a href="${process.env.FRONTEND_URL}/login">login here</a>.</p>
+        <br>
+        <p>If this wasn’t you, please ignore this email.</p>
+        <p>– Amazon Clone Team</p>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+
     res.status(201).json({
-      message: "Signup successful",
-      user: {
-        id: newUser.id,
-        username: newUser.username,
-        email: newUser.email,
-      },
+      message: "Signup successful. Verification email sent.",
+      user: newUser
     });
   } catch (err) {
     console.error("Signup error:", err);
@@ -200,7 +258,7 @@ app.post("/api/forgot-password", async (req, res) => {
 
     // Ensure process.env.FRONTEND_URL is correctly set in your .env file
     // const resetUrl = `${process.env.FRONTEND_URL}/reset-password.html?token=${resetToken}`;
-    const resetUrl = `${process.env.FRONTEND_URL}/reset_password?token=${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
     console.log("Reset URL generated:", resetUrl);
 
@@ -420,6 +478,41 @@ app.post("/api/logout", verifyToken, (req, res) => {
     res.status(500).json({ message: "Logout failed" });
   }
 });
+
+// Payment Success Route
+app.post("/api/payment-success", async (req, res) => {
+  const { email, username, amount } = req.body;
+
+  if (!email || !amount) {
+    return res.status(400).json({ message: "Email and amount are required." });
+  }
+
+  try {
+    const mailOptions = {
+      from: process.env.MAIL_USER,
+      to: email,
+      subject: "Payment Successful - Amazon Clone",
+      html: `
+        <h2>Hi ${username || "User"},</h2>
+        <p>Thank you for your purchase! 🎉</p>
+        <p><b>Amount Paid:</b> ₹${amount.toFixed(2)}</p>
+        <p>Date: ${new Date().toLocaleString()}</p>
+        <br/>
+        <p>Your order is being processed. You can track it from your profile/orders page.</p>
+        <br/>
+        <p>– Amazon Clone Team</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: "Payment success email sent." });
+  } catch (err) {
+    console.error("Payment email error:", err);
+    res.status(500).json({ message: "Failed to send payment email." });
+  }
+});
+
 
 // health check 
 app.get('/', (req, res) => {
