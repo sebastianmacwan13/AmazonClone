@@ -10,6 +10,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
+const { Resend } = require("resend");
 const nodemailer = require("nodemailer");
 const multer = require("multer");
 const path = require("path");
@@ -51,7 +52,16 @@ app.use(bodyParser.json());
 // Serve static files from the 'public' directory (for frontend build)
 app.use(express.json());
 
+const resend = new Resend(process.env.RESEND_API_KEY);
 // --- Nodemailer Transporter Configuration ---
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.MAIL_USER,
+//     pass: process.env.MAIL_PASS,
+//   },
+// });
+// --- Email Configuration ---
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -59,6 +69,38 @@ const transporter = nodemailer.createTransport({
     pass: process.env.MAIL_PASS,
   },
 });
+
+// Unified email sender (uses Resend on Render, Gmail locally)
+const sendEmail = async ({ to, subject, html }) => {
+  try {
+    const isProduction = process.env.NODE_ENV === "production";
+    console.log(`📤 Sending email using: ${isProduction ? "Resend" : "Gmail"}`);
+
+    if (isProduction) {
+      // ✅ Use Resend on Render (SMTP is blocked)
+      await resend.emails.send({
+        from: `Amazon Clone <${process.env.MAIL_USER}>`,
+        to,
+        subject,
+        html,
+      });
+    } else {
+      // ✅ Use Gmail for local testing
+      await transporter.sendMail({
+        from: process.env.MAIL_USER,
+        to,
+        subject,
+        html,
+      });
+    }
+
+    console.log(`✅ Email sent successfully to: ${to}`);
+  } catch (error) {
+    console.error("❌ Email sending failed:", error);
+    throw error;
+  }
+};
+
 // Serve uploaded files statically
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -164,7 +206,12 @@ app.post("/api/signup", async (req, res) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    // await transporter.sendMail(mailOptions);
+await sendEmail({
+  to: mailOptions.to,
+  subject: mailOptions.subject,
+  html: mailOptions.html,
+});
 
     res.status(201).json({
       message: "Signup successful. Verification email sent.",
@@ -275,7 +322,13 @@ app.post("/api/forgot-password", async (req, res) => {
             `,
     };
 
-    await transporter.sendMail(mailOptions);
+    // await transporter.sendMail(mailOptions);
+    await sendEmail({
+  to: mailOptions.to,
+  subject: mailOptions.subject,
+  html: mailOptions.html,
+});
+
     console.log("Password reset email sent to:", user.email);
 
     res.status(200).json({ message: "If an account with that email exists, a password reset link has been sent." });
@@ -459,7 +512,13 @@ app.post("/api/send_mail", upload.single("attachment"), async (req, res) => {
         : [],
     };
 
-    await transporter.sendMail(mailOptions);
+    // await transporter.sendMail(mailOptions);
+    await sendEmail({
+  to: mailOptions.to,
+  subject: mailOptions.subject,
+  html: mailOptions.html,
+});
+
     res.status(200).json({ message: "Email sent successfully" });
   } catch (error) {
     console.error("Email error:", error);
@@ -504,7 +563,13 @@ app.post("/api/payment-success", async (req, res) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions);
+    // await transporter.sendMail(mailOptions);
+    await sendEmail({
+  to: mailOptions.to,
+  subject: mailOptions.subject,
+  html: mailOptions.html,
+});
+
 
     res.status(200).json({ message: "Payment success email sent." });
   } catch (err) {
